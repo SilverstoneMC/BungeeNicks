@@ -14,6 +14,7 @@ public class BungeeNicks extends Plugin implements Listener {
         new ConfigurationManager().initialize();
         adventure = BungeeAudiences.create(this);
 
+        //todo realname command
         getProxy().getPluginManager().registerCommand(this, new ReloadCommand());
         getProxy().getPluginManager().registerCommand(this, new NickCommand());
 
