@@ -1,0 +1,11 @@
+# This config was generated for version %VERSION%
+# Find the latest config at https://github.com/SilverstoneMC/BungeeNicks/blob/main/src/main/resources/config.yml
+
+# This plugin supports MiniMessage markdown and formatting - see https://docs.advntr.dev/minimessage/format.html
+
+# The prefix and suffix for all users with nicknames - leave blank for no prefix/suffix
+prefix: ''
+suffix: ''
+
+# The maximum length of a nickname
+max-length: 16
