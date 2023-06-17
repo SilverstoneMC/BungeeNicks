@@ -44,6 +44,7 @@ public class NickCommand extends Command implements TabExecutor {
             return;
         }
 
+        // Reset nickname
         if (args[0].equalsIgnoreCase("reset")) {
             if (sender.hasPermission("bungeenicks.nickname.others") && args.length > 1) {
                 ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[1]);
@@ -71,6 +72,7 @@ public class NickCommand extends Command implements TabExecutor {
             return;
         }
 
+        // Colors help
         if (args[0].equalsIgnoreCase("colors") && sender.hasPermission("bungeenicks.nickname.colors")) {
             audience.sender(sender).sendMessage(Component.text("Click ", NamedTextColor.DARK_GREEN).append(
                     Component.text("here", NamedTextColor.DARK_AQUA, TextDecoration.UNDERLINED)
@@ -88,15 +90,16 @@ public class NickCommand extends Command implements TabExecutor {
 
         MiniMessage miniMessage = MiniMessage.builder().tags(allowedTags.build()).build();
 
-        String strippedName = miniMessage.stripTags(args[0], allowedTags.build());
-        int maxLength = ConfigurationManager.config.getInt("max-length");
-        if (strippedName.length() > maxLength) {
-            audience.sender(sender).sendMessage(
-                Component.text("Your nickname cannot be longer than " + maxLength + " characters!",
-                    NamedTextColor.RED));
-            return;
+        if (!sender.hasPermission("bungeenicks.nickname.bypasslength")) {
+            String strippedName = miniMessage.stripTags(args[0], allowedTags.build());
+            int maxLength = ConfigurationManager.config.getInt("max-length");
+            if (strippedName.length() > maxLength) {
+                audience.sender(sender).sendMessage(
+                    Component.text("Your nickname cannot be longer than " + maxLength + " characters!",
+                        NamedTextColor.RED));
+                return;
+            }
         }
-
 
         //todo other peoples nicknames
         String nickname = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
@@ -110,6 +113,7 @@ public class NickCommand extends Command implements TabExecutor {
             Component.text("Your nickname has been set to ", NamedTextColor.GREEN)
                 .append(miniMessage.deserialize(args[0])).append(Component.text(".", NamedTextColor.GREEN)));
     }
+
 
     final List<String> arguments = new ArrayList<>();
 
