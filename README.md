@@ -1,0 +1,2 @@
+# BungeeNicks
+BungeeCord nicknames
