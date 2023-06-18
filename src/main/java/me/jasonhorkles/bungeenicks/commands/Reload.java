@@ -1,5 +1,7 @@
-package me.jasonhorkles.bungeenicks;
+package me.jasonhorkles.bungeenicks.commands;
 
+import me.jasonhorkles.bungeenicks.BungeeNicks;
+import me.jasonhorkles.bungeenicks.ConfigurationManager;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -8,8 +10,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
-public class ReloadCommand extends Command {
-    public ReloadCommand() {
+public class Reload extends Command {
+    public Reload() {
         super("bungeenicksreload", "bungeenicks.reload", "bnrl");
     }
 
@@ -20,7 +22,8 @@ public class ReloadCommand extends Command {
         ConfigurationManager.data = new ConfigurationManager().loadFile("data.yml");
 
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            String nickname = ConfigurationManager.data.getString(player.getUniqueId().toString());
+            String nickname = ConfigurationManager.data.getString(
+                "nicknames." + player.getUniqueId().toString());
             if (!nickname.isBlank()) player.setDisplayName(nickname);
         }
 

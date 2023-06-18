@@ -9,7 +9,7 @@ public class JoinEvent implements Listener {
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         ProxiedPlayer player = event.getPlayer();
-        String nickname = ConfigurationManager.data.getString(player.getUniqueId().toString());
+        String nickname = ConfigurationManager.data.getString("nicknames." + player.getUniqueId().toString());
         if (!nickname.isBlank()) player.setDisplayName(nickname);
     }
 }

@@ -1,5 +1,7 @@
-package me.jasonhorkles.bungeenicks;
+package me.jasonhorkles.bungeenicks.commands;
 
+import me.jasonhorkles.bungeenicks.BungeeNicks;
+import me.jasonhorkles.bungeenicks.ConfigurationManager;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -19,8 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NickCommand extends Command implements TabExecutor {
-    public NickCommand() {
+public class Nickname extends Command implements TabExecutor {
+    public Nickname() {
         super("nickname", "bungeenicks.nickname", "nick");
     }
 
@@ -105,6 +107,7 @@ public class NickCommand extends Command implements TabExecutor {
             }
         }
 
+        //todo make perm to allow all characters, otherwise only allow alphanumeric
         String nickname = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(miniMessage.deserialize(args[0]));
 
@@ -116,6 +119,16 @@ public class NickCommand extends Command implements TabExecutor {
         else audience.sender(sender).sendMessage(
             Component.text("Your nickname has been set to ", NamedTextColor.GREEN)
                 .append(miniMessage.deserialize(args[0])));
+    }
+
+    private void setNickname(ProxiedPlayer player, @Nullable String nickname, @Nullable String strippedName) {
+        //todo set prefixes/suffixes
+        if (nickname == null) player.setDisplayName(player.getName());
+        else player.setDisplayName(nickname);
+        ConfigurationManager.data.set("nicknames." + player.getUniqueId().toString(), nickname);
+        ConfigurationManager.data.set("stripped-nicknames." + player.getUniqueId().toString(),
+            player.getName() + ":" + strippedName);
+        new ConfigurationManager().saveData();
     }
 
 
@@ -148,13 +161,5 @@ public class NickCommand extends Command implements TabExecutor {
             }
         }
         return result;
-    }
-
-    private void setNickname(ProxiedPlayer player, @Nullable String nickname, @Nullable String strippedName) {
-        if (nickname == null) player.setDisplayName(player.getName());
-        else player.setDisplayName(nickname);
-        ConfigurationManager.data.set("nicknames." + player.getUniqueId().toString(), nickname);
-        ConfigurationManager.data.set("stripped-nicknames." + player.getUniqueId().toString(), strippedName);
-        new ConfigurationManager().saveData();
     }
 }
