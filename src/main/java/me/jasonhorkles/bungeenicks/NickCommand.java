@@ -14,6 +14,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,41 +40,44 @@ public class NickCommand extends Command implements TabExecutor {
                 return;
             }
 
+            if (sender.hasPermission("bungeenicks.nickname.colors")) {
+                audience.sender(sender).sendMessage(
+                    Component.text("Usage: /nick <nickname | reset | colors>", NamedTextColor.RED));
+                return;
+            }
+
             audience.sender(sender)
                 .sendMessage(Component.text("Usage: /nick <nickname | reset>", NamedTextColor.RED));
             return;
         }
 
-        // Reset nickname
-        if (args[0].equalsIgnoreCase("reset")) {
-            if (sender.hasPermission("bungeenicks.nickname.others") && args.length > 1) {
-                ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[1]);
-                if (target == null) {
-                    audience.sender(sender)
-                        .sendMessage(Component.text("That player isn't online!").color(NamedTextColor.RED));
-                    return;
-                }
-
-                target.setDisplayName(target.getName());
-                ConfigurationManager.data.set(target.getUniqueId().toString(), null);
-                new ConfigurationManager().saveData();
-
-                audience.sender(sender).sendMessage(Component.text("You have reset ", NamedTextColor.GREEN)
-                    .append(Component.text(target.getName())).append(Component.text("'s nickname.")));
+        boolean differentTarget = false;
+        if (sender.hasPermission("bungeenicks.nickname.others") && args.length > 1) {
+            ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[1]);
+            if (target == null) {
+                audience.sender(sender)
+                    .sendMessage(Component.text("That player isn't online!").color(NamedTextColor.RED));
                 return;
             }
+            player = target;
+            differentTarget = true;
+        }
 
-            player.setDisplayName(player.getName());
-            ConfigurationManager.data.set(player.getUniqueId().toString(), null);
-            new ConfigurationManager().saveData();
+        // Reset nickname
+        if (args[0].equalsIgnoreCase("reset")) {
+            setNickname(player, null, null);
 
-            audience.sender(sender)
+            if (differentTarget) audience.sender(sender).sendMessage(
+                Component.text("You have reset ", NamedTextColor.GREEN)
+                    .append(Component.text(player.getName())).append(Component.text("'s nickname.")));
+            else audience.sender(sender)
                 .sendMessage(Component.text("Your nickname has been reset.", NamedTextColor.GREEN));
             return;
         }
 
         // Colors help
-        if (args[0].equalsIgnoreCase("colors") && sender.hasPermission("bungeenicks.nickname.colors")) {
+        if (args[0].equalsIgnoreCase("colors") && (sender.hasPermission(
+            "bungeenicks.nickname.colors") || sender.hasPermission("bungeenicks.nickname.formats"))) {
             audience.sender(sender).sendMessage(Component.text("Click ", NamedTextColor.DARK_GREEN).append(
                     Component.text("here", NamedTextColor.DARK_AQUA, TextDecoration.UNDERLINED)
                         .clickEvent(ClickEvent.openUrl("https://docs.advntr.dev/minimessage/format.html#color")))
@@ -91,27 +95,27 @@ public class NickCommand extends Command implements TabExecutor {
         MiniMessage miniMessage = MiniMessage.builder().tags(allowedTags.build()).build();
 
         if (!sender.hasPermission("bungeenicks.nickname.bypasslength")) {
-            String strippedName = miniMessage.stripTags(args[0], allowedTags.build());
+            String strippedName = miniMessage.stripTags(args[0]);
             int maxLength = ConfigurationManager.config.getInt("max-length");
             if (strippedName.length() > maxLength) {
                 audience.sender(sender).sendMessage(
-                    Component.text("Your nickname cannot be longer than " + maxLength + " characters!",
+                    Component.text("Nicknames cannot be longer than " + maxLength + " characters!",
                         NamedTextColor.RED));
                 return;
             }
         }
 
-        //todo other peoples nicknames
         String nickname = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(miniMessage.deserialize(args[0]));
 
-        player.setDisplayName(nickname);
-        ConfigurationManager.data.set(player.getUniqueId().toString(), nickname);
-        new ConfigurationManager().saveData();
+        setNickname(player, nickname, MiniMessage.miniMessage().stripTags(args[0]));
 
-        audience.sender(sender).sendMessage(
+        if (differentTarget) audience.sender(sender).sendMessage(
+            Component.text("You have set ", NamedTextColor.GREEN).append(Component.text(player.getName()))
+                .append(Component.text("'s nickname to ")).append(miniMessage.deserialize(args[0])));
+        else audience.sender(sender).sendMessage(
             Component.text("Your nickname has been set to ", NamedTextColor.GREEN)
-                .append(miniMessage.deserialize(args[0])).append(Component.text(".", NamedTextColor.GREEN)));
+                .append(miniMessage.deserialize(args[0])));
     }
 
 
@@ -119,7 +123,8 @@ public class NickCommand extends Command implements TabExecutor {
 
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
-        if (sender.hasPermission("bungeenicks.nickname.colors")) {
+        if (sender.hasPermission("bungeenicks.nickname.colors") || sender.hasPermission(
+            "bungeenicks.nickname.formats")) {
             if (!arguments.contains("colors")) arguments.add("colors");
         } else arguments.remove("colors");
 
@@ -143,5 +148,13 @@ public class NickCommand extends Command implements TabExecutor {
             }
         }
         return result;
+    }
+
+    private void setNickname(ProxiedPlayer player, @Nullable String nickname, @Nullable String strippedName) {
+        if (nickname == null) player.setDisplayName(player.getName());
+        else player.setDisplayName(nickname);
+        ConfigurationManager.data.set("nicknames." + player.getUniqueId().toString(), nickname);
+        ConfigurationManager.data.set("stripped-nicknames." + player.getUniqueId().toString(), strippedName);
+        new ConfigurationManager().saveData();
     }
 }
