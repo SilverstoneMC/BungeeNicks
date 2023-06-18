@@ -113,10 +113,14 @@ public class Nickname extends Command implements TabExecutor {
 
         setNickname(player, nickname, MiniMessage.miniMessage().stripTags(args[0]));
 
-        if (differentTarget) audience.sender(sender).sendMessage(
-            Component.text("You have set ", NamedTextColor.GREEN).append(Component.text(player.getName()))
-                .append(Component.text("'s nickname to ")).append(miniMessage.deserialize(args[0])));
-        else audience.sender(sender).sendMessage(
+        if (differentTarget) {
+            audience.sender(sender).sendMessage(
+                Component.text("You have set ", NamedTextColor.GREEN).append(Component.text(player.getName()))
+                    .append(Component.text("'s nickname to ")).append(miniMessage.deserialize(args[0])));
+            audience.player(player).sendMessage(
+                Component.text("Your nickname was changed to ", NamedTextColor.GREEN)
+                    .append(miniMessage.deserialize(args[0])));
+        } else audience.sender(sender).sendMessage(
             Component.text("Your nickname has been set to ", NamedTextColor.GREEN)
                 .append(miniMessage.deserialize(args[0])));
     }
