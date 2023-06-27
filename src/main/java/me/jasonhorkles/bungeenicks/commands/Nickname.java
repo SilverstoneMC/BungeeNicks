@@ -89,6 +89,7 @@ public class Nickname extends Command implements TabExecutor {
             return;
         }
 
+        // Whether or not to allow colors/decorations
         TagResolver.Builder allowedTags = TagResolver.builder();
         if (sender.hasPermission("bungeenicks.nickname.colors"))
             allowedTags.resolvers(StandardTags.color(), StandardTags.rainbow(), StandardTags.gradient());
@@ -99,6 +100,7 @@ public class Nickname extends Command implements TabExecutor {
         MiniMessage miniMessage = MiniMessage.builder().tags(allowedTags.build()).build();
         String strippedName = miniMessage.stripTags(args[0]);
 
+        // Check if nickname is alphanumeric
         if (!sender.hasPermission("bungeenicks.nickname.bypass.alphanumeric"))
             if (!strippedName.matches("^[a-zA-Z0-9]+$")) {
                 audience.sender(sender)
@@ -106,6 +108,7 @@ public class Nickname extends Command implements TabExecutor {
                 return;
             }
 
+        // Check if nickname is too long
         if (!sender.hasPermission("bungeenicks.nickname.bypass.length")) {
             int maxLength = ConfigurationManager.config.getInt("max-length");
             if (strippedName.length() > maxLength) {
