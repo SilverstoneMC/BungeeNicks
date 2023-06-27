@@ -69,10 +69,12 @@ public class Nickname extends Command implements TabExecutor {
         if (args[0].equalsIgnoreCase("reset")) {
             setNickname(player, null, null);
 
-            if (differentTarget) audience.sender(sender).sendMessage(
-                Component.text("You have reset ", NamedTextColor.GREEN)
+            if (differentTarget) {
+                audience.sender(sender).sendMessage(Component.text("You have reset ", NamedTextColor.GREEN)
                     .append(Component.text(player.getName())).append(Component.text("'s nickname.")));
-            else audience.sender(sender)
+                audience.player(player)
+                    .sendMessage(Component.text("Your nickname was reset.", NamedTextColor.GREEN));
+            } else audience.sender(sender)
                 .sendMessage(Component.text("Your nickname has been reset.", NamedTextColor.GREEN));
             return;
         }
@@ -142,12 +144,12 @@ public class Nickname extends Command implements TabExecutor {
 
     public void setDisplayName(ProxiedPlayer player, String nickname) {
         String prefix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
-            .hexColors().build().serialize(MiniMessage.miniMessage()
-                .deserialize("<r>" + ConfigurationManager.config.getString("prefix")));
+            .hexColors().build().serialize(
+                MiniMessage.miniMessage().deserialize(ConfigurationManager.config.getString("prefix")));
         String suffix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
-            .hexColors().build().serialize(MiniMessage.miniMessage()
-                .deserialize("<r>" + ConfigurationManager.config.getString("suffix")));
-        player.setDisplayName(prefix + nickname + suffix);
+            .hexColors().build().serialize(
+                MiniMessage.miniMessage().deserialize(ConfigurationManager.config.getString("suffix")));
+        player.setDisplayName(prefix + "&r" + nickname + "&r" + suffix);
     }
 
 
