@@ -24,7 +24,7 @@ public class Reload extends Command {
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
             String nickname = ConfigurationManager.data.getString(
                 "nicknames." + player.getUniqueId().toString());
-            if (!nickname.isBlank()) player.setDisplayName(nickname);
+            if (!nickname.isBlank()) new Nickname().setDisplayName(player, nickname);
         }
 
         audience.sender(sender)

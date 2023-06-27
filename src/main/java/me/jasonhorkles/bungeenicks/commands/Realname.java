@@ -23,8 +23,9 @@ public class Realname extends Command {
             if (strippedNickname.toLowerCase().replaceFirst(".*:", "").startsWith(args[0].toLowerCase())) {
                 String nickname = ConfigurationManager.data.getString("nicknames." + uuid);
                 audience.sender(sender).sendMessage(
-                    LegacyComponentSerializer.legacySection().deserialize(nickname).append(
-                        Component.text("'s real name is " + strippedNickname.replaceFirst(":.*", "") + ".",
+                    Component.text().append(LegacyComponentSerializer.legacySection().deserialize(nickname))
+                        .append(Component.text(
+                            "'s real name is " + strippedNickname.replaceFirst(":.*", "") + ".",
                             NamedTextColor.GREEN)));
                 playerFound = true;
                 break;

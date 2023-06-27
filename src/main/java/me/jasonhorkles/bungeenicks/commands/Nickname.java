@@ -95,9 +95,16 @@ public class Nickname extends Command implements TabExecutor {
         allowedTags.resolver(StandardTags.reset());
 
         MiniMessage miniMessage = MiniMessage.builder().tags(allowedTags.build()).build();
+        String strippedName = miniMessage.stripTags(args[0]);
 
-        if (!sender.hasPermission("bungeenicks.nickname.bypasslength")) {
-            String strippedName = miniMessage.stripTags(args[0]);
+        if (!sender.hasPermission("bungeenicks.nickname.bypass.alphanumeric"))
+            if (!strippedName.matches("^[a-zA-Z0-9]+$")) {
+                audience.sender(sender)
+                    .sendMessage(Component.text("Nicknames must be alphanumeric!", NamedTextColor.RED));
+                return;
+            }
+
+        if (!sender.hasPermission("bungeenicks.nickname.bypass.length")) {
             int maxLength = ConfigurationManager.config.getInt("max-length");
             if (strippedName.length() > maxLength) {
                 audience.sender(sender).sendMessage(
@@ -107,7 +114,6 @@ public class Nickname extends Command implements TabExecutor {
             }
         }
 
-        //todo make perm to allow all characters, otherwise only allow alphanumeric
         String nickname = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(miniMessage.deserialize(args[0]));
 
@@ -126,13 +132,22 @@ public class Nickname extends Command implements TabExecutor {
     }
 
     private void setNickname(ProxiedPlayer player, @Nullable String nickname, @Nullable String strippedName) {
-        //todo set prefixes/suffixes
         if (nickname == null) player.setDisplayName(player.getName());
-        else player.setDisplayName(nickname);
+        else setDisplayName(player, nickname);
         ConfigurationManager.data.set("nicknames." + player.getUniqueId().toString(), nickname);
         ConfigurationManager.data.set("stripped-nicknames." + player.getUniqueId().toString(),
             player.getName() + ":" + strippedName);
         new ConfigurationManager().saveData();
+    }
+
+    public void setDisplayName(ProxiedPlayer player, String nickname) {
+        String prefix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
+            .hexColors().build().serialize(MiniMessage.miniMessage()
+                .deserialize("<r>" + ConfigurationManager.config.getString("prefix")));
+        String suffix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
+            .hexColors().build().serialize(MiniMessage.miniMessage()
+                .deserialize("<r>" + ConfigurationManager.config.getString("suffix")));
+        player.setDisplayName(prefix + nickname + suffix);
     }
 
 
