@@ -152,7 +152,7 @@ public class Nickname extends Command implements TabExecutor {
         String suffix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(
                 MiniMessage.miniMessage().deserialize(ConfigurationManager.config.getString("suffix")));
-        player.setDisplayName(prefix + "&r" + nickname + "&r" + suffix);
+        player.setDisplayName(prefix + "§r" + nickname + "§r" + suffix);
     }
 
 
