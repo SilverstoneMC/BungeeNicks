@@ -17,6 +17,12 @@ public class Realname extends Command {
     private final BungeeAudiences audience = BungeeNicks.getAdventure();
 
     public void execute(CommandSender sender, String[] args) {
+        if (args.length < 1) {
+            audience.sender(sender)
+                .sendMessage(Component.text("Usage: /realname <nickname>", NamedTextColor.RED));
+            return;
+        }
+
         boolean playerFound = false;
         for (String uuid : ConfigurationManager.data.getSection("stripped-nicknames").getKeys()) {
             String strippedNickname = ConfigurationManager.data.getString("stripped-nicknames." + uuid);

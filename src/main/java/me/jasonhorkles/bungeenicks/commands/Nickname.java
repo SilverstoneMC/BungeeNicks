@@ -161,7 +161,7 @@ public class Nickname extends Command implements TabExecutor {
     @Override
     public Iterable<String> onTabComplete(CommandSender sender, String[] args) {
         if (sender.hasPermission("bungeenicks.nickname.colors") || sender.hasPermission(
-            "bungeenicks.nickname.formats")) {
+            "bungeenicks.nickname.decorations")) {
             if (!arguments.contains("colors")) arguments.add("colors");
         } else arguments.remove("colors");
 
