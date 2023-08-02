@@ -29,11 +29,8 @@ public class Nickname extends Command implements TabExecutor {
     private final BungeeAudiences audience = BungeeNicks.getAdventure();
 
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof ProxiedPlayer player)) {
-            audience.sender(sender).sendMessage(
-                Component.text("Sorry, but only players can do that.").color(NamedTextColor.RED));
-            return;
-        }
+        ProxiedPlayer player = null;
+        if (sender instanceof ProxiedPlayer) player = (ProxiedPlayer) sender;
 
         if (args.length == 0) {
             if (sender.hasPermission("bungeenicks.nickname.others")) {
@@ -67,7 +64,7 @@ public class Nickname extends Command implements TabExecutor {
 
         // Reset nickname
         if (args[0].equalsIgnoreCase("reset")) {
-            setNickname(player, null, null);
+            if (setNickname(player, sender, null, null)) return;
 
             if (differentTarget) {
                 audience.sender(sender).sendMessage(Component.text("You have reset ", NamedTextColor.GREEN)
@@ -122,7 +119,7 @@ public class Nickname extends Command implements TabExecutor {
         String nickname = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(miniMessage.deserialize(args[0]));
 
-        setNickname(player, nickname, MiniMessage.miniMessage().stripTags(args[0]));
+        if (setNickname(player, sender, nickname, MiniMessage.miniMessage().stripTags(args[0]))) return;
 
         if (differentTarget) {
             audience.sender(sender).sendMessage(
@@ -136,13 +133,20 @@ public class Nickname extends Command implements TabExecutor {
                 .append(miniMessage.deserialize(args[0])));
     }
 
-    private void setNickname(ProxiedPlayer player, @Nullable String nickname, @Nullable String strippedName) {
+    private boolean setNickname(@Nullable ProxiedPlayer player, CommandSender sender, @Nullable String nickname, @Nullable String strippedName) {
+        if (player == null) {
+            audience.sender(sender)
+                .sendMessage(Component.text("You must be a player to do that!", NamedTextColor.RED));
+            return true;
+        }
+
         if (nickname == null) player.setDisplayName(player.getName());
         else setDisplayName(player, nickname);
         ConfigurationManager.data.set("nicknames." + player.getUniqueId().toString(), nickname);
         ConfigurationManager.data.set("stripped-nicknames." + player.getUniqueId().toString(),
             player.getName() + ":" + strippedName);
         new ConfigurationManager().saveData();
+        return false;
     }
 
     public void setDisplayName(ProxiedPlayer player, String nickname) {
