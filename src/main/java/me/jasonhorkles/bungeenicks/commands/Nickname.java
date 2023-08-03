@@ -33,20 +33,15 @@ public class Nickname extends Command implements TabExecutor {
         if (sender instanceof ProxiedPlayer) player = (ProxiedPlayer) sender;
 
         if (args.length == 0) {
-            if (sender.hasPermission("bungeenicks.nickname.others")) {
-                audience.sender(sender).sendMessage(
+            if (sender.hasPermission("bungeenicks.nickname.others"))
+                if (sender.hasPermission("bungeenicks.nickname.colors")) audience.sender(sender).sendMessage(
+                    Component.text("Usage: /nick <nickname | reset | colors> [player]", NamedTextColor.RED));
+                else audience.sender(sender).sendMessage(
                     Component.text("Usage: /nick <nickname | reset> [player]", NamedTextColor.RED));
-                return;
-            }
-
-            if (sender.hasPermission("bungeenicks.nickname.colors")) {
-                audience.sender(sender).sendMessage(
-                    Component.text("Usage: /nick <nickname | reset | colors>", NamedTextColor.RED));
-                return;
-            }
-
-            audience.sender(sender)
-                .sendMessage(Component.text("Usage: /nick <nickname | reset>", NamedTextColor.RED));
+            else if (sender.hasPermission("bungeenicks.nickname.colors")) audience.sender(sender)
+                .sendMessage(Component.text("Usage: /nick <nickname | reset | colors>", NamedTextColor.RED));
+            else audience.sender(sender)
+                    .sendMessage(Component.text("Usage: /nick <nickname | reset>", NamedTextColor.RED));
             return;
         }
 
