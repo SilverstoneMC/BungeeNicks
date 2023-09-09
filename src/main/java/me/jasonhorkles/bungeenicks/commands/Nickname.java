@@ -145,13 +145,17 @@ public class Nickname extends Command implements TabExecutor {
     }
 
     public void setDisplayName(ProxiedPlayer player, String nickname) {
+        // Add the extra space at the end to get minimessage to set the color even if there is no text in the prefix
         String prefix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(
-                MiniMessage.miniMessage().deserialize(ConfigurationManager.config.getString("prefix")));
+                MiniMessage.miniMessage().deserialize(ConfigurationManager.config.getString("prefix") + " "))
+            .replaceAll(" $", "");
+        
         String suffix = LegacyComponentSerializer.builder().useUnusualXRepeatedCharacterHexFormat()
             .hexColors().build().serialize(
                 MiniMessage.miniMessage().deserialize(ConfigurationManager.config.getString("suffix")));
-        player.setDisplayName(prefix + "§r" + nickname + "§r" + suffix);
+
+        player.setDisplayName(prefix + nickname + "§r" + suffix);
     }
 
 

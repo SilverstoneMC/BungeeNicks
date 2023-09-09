@@ -6,7 +6,7 @@
 
     <groupId>me.jasonhorkles</groupId>
     <artifactId>BungeeNicks</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -122,7 +122,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.20-R0.1-SNAPSHOT</version>
+            <version>1.20-R0.1</version>
             <scope>provided</scope>
         </dependency>
         
